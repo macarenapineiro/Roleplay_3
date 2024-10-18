@@ -8,6 +8,7 @@ public class Enemy2 : Character, IEnemy
     {
         this.VictoryPoints = 3;
         this.AddItem(new Bow());
+        this.AddItem(new Axe());
         this.AddItem(new Helmet());
     }
 
