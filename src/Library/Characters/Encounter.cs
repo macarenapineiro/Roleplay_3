@@ -1,12 +1,15 @@
-﻿namespace Ucu.Poo.RoleplayGame;
+﻿using Ucu.Poo.RoleplayGame;
+using System.Runtime.CompilerServices;
+namespace Library;
 
 
 public class Encounter
 {
-   /// <summary>
-   /// Crea una lista con los heroes y otra con los enemigos
-   /// </summary>
+    /// <summary>
+    /// Crea una lista con los heroes y otra con los enemigos
+    /// </summary>
     private List<ICharacter> heroes;
+
     private List<IEnemy> enemies;
 
     public Encounter(List<ICharacter> heroes, List<IEnemy> enemies)
@@ -14,75 +17,81 @@ public class Encounter
         this.heroes = heroes;
         this.enemies = enemies;
     }
+
     /// <summary>
     /// Mientras que hayan heroes y enemigos vivos primero ataca el enemigo y luego el heroe y verifica si alguno se quedó sin vida
     /// </summary>
     public void DoEncounter()
     {
-        while (heroes.Count > 0 && enemies.Count > 0)
+        while (HeroesVivos() && EnemiesVivos())
         {
-            EnemiesAttack();
-            if (heroes.Count > 0)
-            {
-                HeroesAttack();
-            }
-            CheckVictory();
+            EnemyAttack();
+            HeroAttack();
         }
     }
-    /// <summary>
-    /// El enemigo 1 ataca al heroe 1 y así sucesivamente, si el heroe se qeuda sin vida se remueve de la lista
-    /// </summary>
-    private void EnemiesAttack()
-    {
-        for (int i = 0; i < enemies.Count; i++)
-        {
-            IEnemy enemy = enemies[i];
-            // i % heroes.Count lo que hace es que si la cantidad de heroes es menor va a ir al inicio de la lista
-            ICharacter Hero = heroes[i % heroes.Count];
-            Hero.ReceiveAttack(enemy.AttackValue);
-            if (Hero.Health == 0)
-            {
-                heroes.Remove(Hero);
-            }
-        }
-    }
-    /// <summary>
-    /// El heroe ataca al enemigo si el enemigo se queda sin vida, el heroe gana los VictoryPoints del enemigo
-    /// </summary>
-    private void HeroesAttack()
+
+    public bool HeroesVivos()
     {
         foreach (ICharacter hero in heroes)
         {
-            foreach (IEnemy enemy in enemies)
+            if (hero.Health > 0)
             {
-                enemy.ReceiveAttack(hero.AttackValue);
-                if (enemy.Health == 0)
-                {
-                    hero.AddVictoryPoint(enemy.VictoryPoints);
-                    enemies.Remove(enemy);
-                }
+                return true;
             }
-
-            // Curar al héroe si tiene 5+ VP
-            if (hero.VictoryPoints >= 5)
+        }
+        return false;
+    }
+    public bool EnemiesVivos()
+    {
+        foreach (IEnemy enemy in enemies)
+        {
+            if (enemy.Health > 0)
             {
-                hero.Cure();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void EnemyAttack()
+    {
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            IEnemy enemywhoattack = enemies[i];
+            // i % heroes.Count se utiliza si la cantidad de heroes es menor a las de enemigos no quede fuera de rango
+            ICharacter hero = heroes[i % heroes.Count];
+            if (enemywhoattack.Health > 0)
+            {
+                hero.ReceiveAttack(enemywhoattack.AttackValue);
             }
         }
     }
-    /// <summary>
-    /// Si todos los heroes se quedan sin vida o todos los enemigos, muestra un mensaje diciendolo
-    /// </summary>
-    private void CheckVictory()
+
+    private void HeroAttack()
     {
-        if (heroes.Count == 0)
+        for(int i = 0; i < heroes.Count; i++)
         {
-            Console.WriteLine("Todos los héroes han muerto. Los enemigos ganan.");
-        }
-        else if (enemies.Count == 0)
-        {
-            Console.WriteLine("Todos los enemigos han muerto. Los héroes ganan.");
+            ICharacter hero = heroes[i];
+            if (hero.Health > 0)
+            { 
+                for(int e = 0; e < enemies.Count; e++)
+                {
+                    IEnemy enemy = enemies[e];
+                    if (enemy.Health > 0)
+                    {
+                        enemy.ReceiveAttack(hero.AttackValue);
+                    }
+
+                    if (enemy.Health == 0)
+                    {
+                        hero.AddVictoryPoint(enemy.VictoryPoints);
+                        if (hero.VictoryPoints >= 5)
+                        {
+                            hero.Cure();
+                        }
+                    }
+                }
+            }
         }
     }
 }
-
