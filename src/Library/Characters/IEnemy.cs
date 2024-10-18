@@ -1,8 +1,9 @@
-namespace Ucu.Poo.RoleplayGame;
+﻿namespace Ucu.Poo.RoleplayGame;
 
-public interface ICharacter
+public interface IEnemy
 {
-    public int VictoryPoints { get; set; }
+    int VictoryPoints { get; }
+
     string Name { get; set; }
 
     int Health { get; }
@@ -18,7 +19,6 @@ public interface ICharacter
     void Cure();
 
     void ReceiveAttack(int power);
-    
-    void AddVictoryPoint(int victoryPoint);
 
+    void DefeatedBy(ICharacter character);
 }
